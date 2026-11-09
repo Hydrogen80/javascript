@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Javascript - Πίνακες & Συναρτήσεις</title>
+    <!-- Google Fonts & Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@600&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=left_click,touch_app,calculate,palette" />
+    
+    <style>
+        
+        :root { 
+            --ink: white; 
+            --ink-2: white; 
+            --ink-3: #4FF8FF; 
+            --accent-color: cornflowerblue;
+        }
+
+        body {
+            font-size: large;
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Navigation Bar Styling */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 10px;
+            background-color: #0d0d0d;
+            border-bottom: 1px solid #222;
+        }
+
+        .nav-btn {
+            background: #1a1a1a;
+            color: white;
+            border: 2px solid #333;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 12px;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            cursor: pointer;
+            background: white;
+            color: black;
+            border-color: white;
+        }
+
+        .nav-btn.active {
+            background: var(--accent-color);
+            color: black;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 12px rgba(100, 149, 237, 0.5);
+        }
+
+        /* Buttons Styling */
+        button {
+            background: #ffffff;
+            color: black;
+            border: 0;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 8px;
+            transition: transform 0.2s, background 0.2s;
+        }
+
+        button:hover {
+            cursor: pointer;
+            transform: scale(1.05);
+            background: var(--ink-3);
+        }
+
+        hr {
+            color: red;
+            border: 1px solid red;
+            width: 80%;
+            margin: 30px auto;
+        }
+
+        /* Scanner Text Effect */
+        .fx-scanner {
+            display: flex;
+            justify-content: center;
+            position: relative;
+            font: 600 28px/1.2 "JetBrains Mono", monospace;
+            letter-spacing: .08em;
+            background: linear-gradient(90deg,
+                color-mix(in srgb, var(--ink) 25%, transparent) 0 40%,
+                var(--ink) 50%,
+                color-mix(in srgb, var(--ink) 25%, transparent) 60% 100%
+            ) 0 0 / 300% 100%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: fx-scan-glow 2.6s ease-in-out infinite alternate;
+            margin-top: 20px;
+        }
+
+        .fx-scanner::after {
+            content: "";
+            position: absolute;
+            top: -6px;
+            bottom: -6px;
+            left: 0;
+            width: 3px;
+            background: var(--ink-2);
+            box-shadow: 0 0 14px var(--ink-2);
+            animation: fx-scan-bar 2.6s ease-in-out infinite alternate;
+        }
+
+        @keyframes fx-scan-glow {
+            0%   { background-position: 100% 0; }
+            100% { background-position: 0% 0; }
+        }
+
+        @keyframes fx-scan-bar {
+            0%   { left: 0; transform: translateX(0); }
+            100% { left: 100%; transform: translateX(-100%); }
+        }
+
+        /* Responsive Grid Container & Items */
+        .grid-container {
+            display: grid;
+            column-gap: 15px;
+            row-gap: 15px;
+            justify-content: center;
+            align-items: center;
+            width: 90%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px 0;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        }
+
+        .grid-item {
+            border: 2px solid rgba(199, 199, 199, 0.38);
+            min-height: 120px;
+            text-align: center;
+            align-content: center;
+            border-radius: 25px;
+            color: white;
+            background-color: black;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 15px;
+            box-sizing: border-box;
+            transition: all 0.2s ease-in-out;
+        }
+
+        .grid-item:hover {
+            align-content: center;
+            justify-content: center;
+            border-radius: 25px;
+            transition: all 0.2s;
+            display: flex;
+            flex-wrap: wrap;
+            border: 2px ridge white;
+            flex-direction: column;
+            transform: scale(1.1);
+            color: black;
+            background-color: white;
+        }
+
+        /* Page Layout & Container */
+        .page {
+            display: none;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .section-box {
+            background-color: #111111;
+            border: 1px solid #333;
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .input-style {
+            padding: 12px;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            border: 2px solid var(--accent-color);
+            background-color: #222;
+            color: white;
+            text-align: center;
+            width: 200px;
+            margin: 10px;
+        }
+
+        /* Footer */
+        footer {
+            width: 100%;
+            background-color: white;
+            color: black;
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav>
+        <button id="btnPage1" class="nav-btn active" onclick="showPage('page1')">Σελίδα 1: Πίνακες</button>
+        <button id="btnPage2" class="nav-btn" onclick="showPage('page2')">Σελίδα 2: Συναρτήσεις</button>
+    </nav>
+
+    <!-- Header Scanner Effect -->
+    <div class="fx-scanner">
+        <h1>Σελίδα Javascript</h1>
+    </div>
+
+    <!-- MAIN CONTENT AREA -->
+    <main>
+        
+        <!-- ==================== ΣΕΛΙΔΑ 1 ==================== -->
+        <div id="page1" class="page active">
+            
+            <!-- Τμήμα 1: Πίνακας 10 Ακεραίων -->
+            <div class="section-box">
+                <h2 style="color: var(--accent-color);">1. Πίνακας 10 Ακεραίων Αριθμών</h2>
+                <h3 style="text-align: center">Πατήστε το κουμπί για την δημιουργία ενός πίνακα με 10 τυχαίους αριθμούς</h3>
+                
+                <div style="display: flex; justify-content: center; margin: 15px 0;">
+                    <button onclick="displayRandomNumbers()" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span>Δημιουργία</span>
+                        <span class="material-symbols-outlined" style="font-size:36px; color:black;">left_click</span>
+                    </button>
+                </div>
+
+                <div id="numbersContainer" class="grid-container">
+                    <!-- Δημιουργείται δυναμικά με JS -->
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Τμήμα 2: Πίνακας 10 Strings -->
+            <div class="section-box">
+                <h2 style="color: var(--ink-3);">2. Πίνακας 10 Strings (Πόλεις)</h2>
+                <h3>Εμφάνιση 10 στοιχείων αλφαριθμητικών (Strings) σε Grid</h3>
+                
+                <div style="display: flex; justify-content: center; margin: 15px 0;">
+                    <button onclick="displayCities()" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                        <span>Προβολή / Ανακάτεμα</span>
+                        <span class="material-symbols-outlined" style="font-size:36px; color:black;">touch_app</span>
+                    </button>
+                </div>
+
+                <div id="stringsContainer" class="grid-container">
+                    <!-- Δημιουργείται δυναμικά με JS -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ==================== ΣΕΛΙΔΑ 2 ==================== -->
+        <div id="page2" class="page">
+            
+            <!-- Συνάρτηση 1 -->
+            <div class="section-box">
+                <h2 style="color: var(--accent-color);">1η Συνάρτηση: Υπολογισμός Τετραγώνου & Κύβου</h2>
+                <p>Εισάγετε έναν αριθμό και πατήστε το κουμπί (onclick) για να καλέσετε τη συνάρτηση <code>calculateMath()</code>.</p>
+                
+                <div style="margin: 20px 0;">
+                    <input type="number" id="calcInput" class="input-style" value="5" placeholder="Αριθμός..." />
+                    <br/><br/>
+                    <button onclick="calculateMath()" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined">calculate</span>
+                        <span>Υπολογισμός (onclick)</span>
+                    </button>
+                </div>
+
+                <div id="mathResult" style="font-size: 1.4rem; font-weight: bold; margin-top: 15px; color: var(--ink-3);">
+                    -
+                </div>
+            </div>
+
+            <hr />
+
+            <!-- Συνάρτηση 2 -->
+            <div class="section-box">
+                <h2 style="color: var(--ink-3);">2η Συνάρτηση: Δυναμική Αλλαγή Χρώματος Accent</h2>
+                <p>Πατήστε το κουμπί (onclick) για να καλέσετε τη συνάρτηση <code>changeThemeAccent()</code> η οποία αλλάζει το χρώμα της εφαρμογής.</p>
+                
+                <div style="margin: 20px 0;">
+                    <button onclick="changeThemeAccent()" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <span class="material-symbols-outlined">palette</span>
+                        <span>Αλλαγή Χρώματος (onclick)</span>
+                    </button>
+                </div>
+
+                <div id="colorStatus" style="font-size: 1.2rem; font-weight: bold; color: white;">
+                    Τρέχον Χρώμα: Cornflower Blue
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div>JavaScript</div>
+    </footer>
+
+    <!-- JavaScript code -->
+    <script>
+        // ==========================================
+        // 1. ΣΕΛΙΔΑ 1: ΠΙΝΑΚΕΣ
+        // ==========================================
+
+        // (Α) Συνάρτηση για Πίνακα 10 Ακεραίων
+        function displayRandomNumbers() {
+            // 1. Δημιουργία 10 τυχαίων ακεραίων
+            const numbers = Array.from({ length: 10 }, () => Math.floor(Math.random() * 100) + 1);
+
+            // 2. Επιλογή του container
+            const container = document.getElementById('numbersContainer');
+            container.innerHTML = '';
+
+            // 3. Διάσχιση πίνακα και προσθήκη grid items
+            numbers.forEach((number, index) => {
+                const div = document.createElement('div');
+                div.classList.add('grid-item');
+                div.innerHTML = `<span style="font-size: 0.8rem; opacity: 0.7; display:block;">[${index}]</span>${number}`;
+                container.appendChild(div);
+            });
+        }
+
+        // (Β) Συνάρτηση για Πίνακα 10 Strings
+        const cities = ["Αθήνα", "Θεσσαλονίκη", "Πάτρα", "Ηράκλειο", "Λάρισα", "Βόλος", "Ιωάννινα", "Χανιά", "Ρόδος", "Καλαμάτα"];
+
+        function displayCities() {
+            // Ανακάτεμα στοιχείων πίνακα
+            const shuffled = [...cities].sort(() => Math.random() - 0.5);
+            
+            const container = document.getElementById('stringsContainer');
+            container.innerHTML = '';
+
+            shuffled.forEach((city, index) => {
+                const div = document.createElement('div');
+                div.classList.add('grid-item');
+                div.style.borderColor = 'var(--ink-3)';
+                div.innerHTML = `<span style="font-size: 0.8rem; opacity: 0.7; display:block;">Πόλη ${index + 1}</span>${city}`;
+                container.appendChild(div);
+            });
+        }
+
+        // ==========================================
+        // 2. ΣΕΛΙΔΑ 2: ΣΥΝΑΡΤΗΣΕΙΣ ONCLICK
+        // ==========================================
+
+        // 1η Συνάρτηση: Υπολογισμός Τετραγώνου & Κύβου
+        function calculateMath() {
+            const inputVal = parseFloat(document.getElementById('calcInput').value);
+            const resultDiv = document.getElementById('mathResult');
+
+            if (isNaN(inputVal)) {
+                resultDiv.textContent = "Παρακαλώ εισάγετε έναν έγκυρο αριθμό!";
+                return;
+            }
+
+            const square = Math.pow(inputVal, 2);
+            const cube = Math.pow(inputVal, 3);
+
+            resultDiv.innerHTML = `Αριθμός: ${inputVal} &nbsp;|&nbsp; Τετράγωνο (x²): ${square} &nbsp;|&nbsp; Κύβος (x³): ${cube}`;
+        }
+
+        // 2η Συνάρτηση: Αλλαγή Θέματος Χρώματος
+        const colorPalette = ["cornflowerblue", "#4FF8FF", "#FF4F81", "#50C878", "#FFD700", "#FF7F50"];
+        let colorIndex = 0;
+
+        function changeThemeAccent() {
+            colorIndex = (colorIndex + 1) % colorPalette.length;
+            const newColor = colorPalette[colorIndex];
+
+            // Ενημέρωση μεταβλητής CSS
+            document.documentElement.style.setProperty('--accent-color', newColor);
+            document.documentElement.style.setProperty('--ink-3', newColor);
+
+            document.getElementById('colorStatus').textContent = `Τρέχον Χρώμα: ${newColor}`;
+            document.getElementById('colorStatus').style.color = newColor;
+        }
+
+        // ==========================================
+        // 3. ΠΛΟΗΓΗΣΗ (PAGE SWITCHING)
+        // ==========================================
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'page1') {
+                document.getElementById('btnPage1').classList.add('active');
+            } else {
+                document.getElementById('btnPage2').classList.add('active');
+            }
+        }
+
+        // Αρχικοποίηση δεδομένων κατά την εκκίνηση
+        window.onload = function() {
+            displayRandomNumbers();
+            displayCities();
+        };
+    </script>
+</body>
+</html>
